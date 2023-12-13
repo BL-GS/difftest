@@ -599,6 +599,7 @@ r_s2xlate do_s2xlate(Hgatp* hgatp, uint64_t gpaddr){
     r_s2xlate r_s2;
   //  printf("gpaddr: %lx\n", gpaddr);
     if(hgatp->mode == 0){
+      //  printf("hpaddr: %lx\n", gpaddr);
         r_s2.pte.ppn = gpaddr >> 12;
         r_s2.level = 2;
         return r_s2;
@@ -606,6 +607,7 @@ r_s2xlate do_s2xlate(Hgatp* hgatp, uint64_t gpaddr){
     for (level = 0; level < 3; level ++) {
         hpaddr = pg_base + GVPNi(gpaddr, level) * sizeof(uint64_t);
         read_goldenmem(hpaddr, &pte.val, 8);
+        // printf("i = %d, hpaddr: %lx pte ppn: %lx\n",level, hpaddr, pte.ppn);
         pg_base = pte.ppn << 12;
         if (!pte.v || pte.r || pte.x || pte.w || level == 2) {
           break;
@@ -662,7 +664,6 @@ int Difftest::do_l1tlb_check() {
       printf("  REF commits pte.val: 0x%lx, dut s2xlate: %d\n", pte.val, dut->l1tlb[i].s2xlate);
       printf("  REF commits ppn 0x%lx, DUT commits ppn 0x%lx\n", pte.difftest_ppn, dut->l1tlb[i].ppn);
       printf("  REF commits perm 0x%02x, level %d, pf %d\n", pte.difftest_perm, difftest_level, !pte.difftest_v);
-      fflush(stdout);
       return 0;
     }
   }
